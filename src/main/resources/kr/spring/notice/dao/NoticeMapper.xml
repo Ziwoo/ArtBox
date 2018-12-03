@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper   
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"   
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">  
+<mapper namespace="kr.spring.notice.dao.NoticeMapper">  
+	<select id="list" parameterType="map" resultType="noticeCommand">
+		SELECT
+			no_num,
+			mem_id,
+			<![CDATA[
+			REPLACE(REPLACE(no_title,'<','&lt;'),'>','&gt;') no_title,
+			]]>
+			no_content,
+			no_regdate,
+			filename 
+		FROM (SELECT
+				a.*,
+				rownum rnum
+				FROM (SELECT
+						*
+						FROM ab_notice
+						<where>
+							<if test="keyword != '' and keyfield == 'no_title'">
+								no_title LIKE '%' || #{keyword} || '%'
+							</if>
+							<if test="keyword != '' and keyfield == 'mem_id'">
+								mem_id LIKE '%' || #{keyword} || '%'
+							</if>
+							<if test="keyword != '' and keyfield == 'no_content'">
+								no_content LIKE '%' || #{keyword} || '%'
+							</if>
+							<if test="keyword != '' and keyfield == 'all'">
+								no_title LIKE '%' || #{keyword} || '%' or
+								mem_id LIKE '%' || #{keyword} || '%' or
+								no_content LIKE '%' || #{keyword} || '%' 
+							</if>
+						</where>
+						ORDER BY no_num DESC)a)
+		<![CDATA[
+		WHERE rnum >= #{start} AND rnum <= #{end}
+		]]>
+		<!-- SQL의 함수를 이용해서 HTML태그를 제어 -->
+	</select>
+	
+	<select id="getRowCount" parameterType="map" resultType="integer">
+		SELECT
+		  count(*)
+		FROM ab_notice
+		  <where> 
+           	<if test="keyword != '' and keyfield == 'no_title'">
+           		no_title LIKE '%' || #{keyword} || '%'
+           	</if>
+           	<if test="keyword != '' and keyfield == 'mem_id'">
+           		mem_id LIKE '%' || #{keyword} || '%'
+           	</if>
+           	<if test="keyword != '' and keyfield == 'no_content'">
+           		no_content LIKE '%' || #{keyword} || '%'
+           	</if>
+           	<if test="keyword != '' and keyfield == 'all'">
+           		no_title LIKE '%' || #{keyword} || '%' or
+           		mem_id LIKE '%' || #{keyword} || '%' or
+           		no_content LIKE '%' || #{keyword} || '%'
+           	</if> 
+        </where>  
+	</select>
+	
+		<select id="listReply" parameterType="map" resultType="noticeReplyCommand">
+	
+		SELECT
+			re_no,
+			re_content,
+			to_char(re_date,'YYYY-MM-DD HH24:MI:SS') re_date,
+			no_num,
+			mem_id
+		  FROM (SELECT
+		  			a.*,
+		  			rownum rnum
+	  			FROM (SELECT
+	  					*
+  					FROM noticereply
+  					WHERE no_num = #{no_num}
+  					ORDER BY re_no DESC)a)
+	  			<![CDATA[
+	  			WHERE rnum >= #{start} AND rnum <= #{end}
+	  			]]>
+	  			
+	</select>
+	
+	<delete id="deleteReplyBySeqList" parameterType="list">
+		DELETE FROM noticereply WHERE no_num in
+		<foreach collection="list" item="no_num" open="(" separator="," close=")">
+			#{no_num} 
+		</foreach> 
+	</delete>
+	
+</mapper>
+
+
+
+
+
+
+

@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper   
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"   
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">  
+<mapper namespace="kr.spring.board.dao.BoardMapper">  
+	<select id="list" parameterType="map" resultType="boardCommand">
+		SELECT
+			seq,
+			id,
+			<![CDATA[
+			REPLACE(REPLACE(title,'<','&lt;'),'>','&gt;') title,
+			]]>
+			content,
+			hit,
+			regdate,
+			filename
+		FROM (SELECT
+				a.*,
+				rownum rnum
+				FROM (SELECT
+						*
+						FROM sboard
+						<where>
+							<if test="keyword != '' and keyfield == 'title'">
+								title LIKE '%' || #{keyword} || '%'
+							</if>
+							<if test="keyword != '' and keyfield == 'id'">
+								id LIKE '%' || #{keyword} || '%'
+							</if>
+							<if test="keyword != '' and keyfield == 'content'">
+								content LIKE '%' || #{keyword} || '%'
+							</if>
+							<if test="keyword != '' and keyfield == 'all'">
+								title LIKE '%' || #{keyword} || '%' or
+								id LIKE '%' || #{keyword} || '%' or
+								content LIKE '%' || #{keyword} || '%' 
+							</if>
+						</where>
+						ORDER BY seq DESC)a)
+		<![CDATA[
+		WHERE rnum >= #{start} AND rnum <= #{end}
+		]]>
+		<!-- SQL의 함수를 이용해서 HTML태그를 제어 -->
+	</select>
+	
+	<select id="getRowCount" parameterType="map" resultType="integer">
+	SELECT
+		count(*)
+	FROM sboard
+		<where>
+			<if test="keyword != '' and keyfield == 'title'">
+				title LIKE '%' || #{keyword} || '%'
+			</if>
+			<if test="keyword != '' and keyfield == 'id'">
+				id LIKE '%' || #{keyword} || '%'
+			</if>
+			<if test="keyword != '' and keyfield == 'content'">
+				content LIKE '%' || #{keyword} || '%'
+			</if>
+			<if test="keyword != '' and keyfield == 'all'">
+				title LIKE '%' || #{keyword} || '%' or
+				id LIKE '%' || #{keyword} || '%' or
+				content LIKE '%' || #{keyword} || '%'
+			</if>
+		</where>
+	</select>
+	
+</mapper>
+
+
+
+
+
+
+
