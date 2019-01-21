@@ -13,3 +13,7 @@ Spring Framework
    
 - DBMS
    - Oracle
+   
+- Front
+   - JavaScript
+   - HTML5
