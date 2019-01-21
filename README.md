@@ -12,7 +12,7 @@ Spring Framework
    - Sql developer
    
 - DBMS
-   - Oracle
+   - Oracle 11g
    
 - Front
    - JavaScript
