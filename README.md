@@ -15,5 +15,5 @@ Spring Framework
    - Oracle 11g
    
 - Front
-   - JavaScript
+   - Javascript
    - HTML5
